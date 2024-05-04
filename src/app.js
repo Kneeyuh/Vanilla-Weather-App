@@ -24,13 +24,13 @@ function formatDate(date) {
   let minutes = date.getMinutes();
   let hours = date.getHours();
   let days = [
-    " Sunday",
-    " Monday",
-    " Tuesday",
-    " Wednesday",
-    " Thursday",
-    " Friday",
-    " Saturday",
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
   ];
   let day = days[date.getDay()];
 
@@ -44,7 +44,10 @@ function formatDate(date) {
 function SearchCity(city) {
   let apiKey = "633bc35a46ofab649caf20e3932017t1";
   let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
-  axios.get(apiUrl).then(showTemperature);
+  axios
+    .get(apiUrl)
+    .then(showTemperature)
+    .catch((error) => console.error(error));
 }
 
 function handleSubmit(event) {
@@ -56,36 +59,44 @@ function handleSubmit(event) {
 
 function getForecast(city) {
   let apiKey = "633bc35a46ofab649caf20e3932017t1";
-  let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}units=metric`;
+  let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
 
-  axios.get(apiUrl).then(displayForecast);
+  axios
+    .get(apiUrl)
+    .then(displayForecast)
+    .catch((error) => console.error(error));
 }
 
 function displayForecast(response) {
   let forecast = document.querySelector("#forecast");
 
-  let days = ["Tue", "Wed", "Thu", "Fri", "Sat"];
   let forecastHtml = "";
 
-  days.forEach(function (day) {
+  response.data.daily.forEach(function (day, index) {
     forecastHtml =
       forecastHtml +
       `<div class="weather-forecast">
-        <div class="row">
-          <div class="col-2">
-            <div class="weather-forecast-date">${day}</div>
-            <img
-              src="https://shecodes-assets.s3.amazonaws.com/api/weather/icons/few-clouds-night.png"
-              alt=""
-              width="35px"
-            />
-            <div class="weather-forecast-temps">
-              <span class="weather-forecast-temp-max">18° </span>
-              <span class="weather-forecast-temp-min">12° </span>
+          <div class="row">
+            <div class="col-2">
+              <div class="weather-forecast-date">${formatDate(
+                new Date(day.time * 1000)
+              )}</div>
+              <img
+                src="${day.condition.icon_url}"
+                alt=""
+                width="40px"
+              />
+              <div class="weather-forecast-temps">
+                <span class="weather-forecast-temp-max">${Math.round(
+                  (day.temperature.maximum * 9) / 5 + 32
+                )}° </span>
+                <span class="weather-forecast-temp-min">${Math.round(
+                  (day.temperature.minimum * 9) / 5 + 32
+                )}° </span>
+              </div>
             </div>
           </div>
-        </div>
-      </div>`;
+        </div>`;
   });
 
   forecast.innerHTML = forecastHtml;
@@ -94,5 +105,4 @@ function displayForecast(response) {
 let searchForm = document.querySelector("#search-form");
 searchForm.addEventListener("submit", handleSubmit);
 
-// getForecast("New York");
-displayForecast();
+SearchCity("New York");
